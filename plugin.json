@@ -1,0 +1,32 @@
+{
+  "name": "Speech recognition",
+  "description": "Allow user to use snowboy and API.AI",
+  "elementName": "speech-item",
+  "files": ["speech.html"],
+  "icon": "",
+  "props": [
+    {
+      "name": "loader_url",
+      "description": "Image for the loader when the app is listening",
+      "type": "string",
+      "defaultValue": "plugins/marcel-plugin-speech/front/loader.jpg"
+    },
+    {
+      "name": "socket_url",
+      "description": "URL for the front to connect to",
+      "type": "number",
+      "defaultValue": "http://localhost:8080"
+    },
+    {
+      "name": "default_message",
+      "description": "Displayed message when app not listening",
+      "type": "json",
+      "defaultValue": {
+        "default_message": "Hello everyone"
+      }
+    }
+  ],
+  "ports": [
+    8080
+  ]
+}
