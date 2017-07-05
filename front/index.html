@@ -1,7 +1,8 @@
-<link rel="import" href="/plugins/shared-styles/shared-styles.html">
+<link rel="import" href="./bower_components/polymer/polymer-element.html">
+
 <script src="./socketio.js"></script>
 
-<dom-module id="speech-item">
+<dom-module id="marcel-plugin-speech">
   <template>
     <style include="shared-styles"></style>
     <style>
@@ -40,15 +41,15 @@
         display: none;
       }
     </style>
-    <template is="dom-if" if="[[listening]]">
+    <template is="dom-if" if="{{listening}}">
       <div id="overlay">
         <div>
           <h1>{{message}}</h1>
           <h2>{{request}}</h2>
-          <template is="dom-if" if="[[default]]">
-            <img src="{{default_url}}" alt="" id="loader"/>
+          <template is="dom-if" if="{{default_url}}">
+            <img src="[[default_url]]" alt="" id="loader"/>
           </template>
-          <template is="dom-if" if="[[!default]]">
+          <template is="dom-if" if="{{!default_url}}">
             <img src="{{loader_url}}" alt="" id="loader"/>
           </template>
         </div>
@@ -59,7 +60,7 @@
   <script>
     (() => {
       class Speech extends Polymer.Element {
-        static get is () { return 'speech-item' }
+        static get is () { return 'marcel-plugin-speech' }
 
         static get properties () {
             return {

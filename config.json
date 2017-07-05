@@ -1,8 +1,8 @@
 {
   "name": "Speech recognition",
   "description": "Allow user to use snowboy and API.AI",
-  "elementName": "speech-item",
-  "files": ["speech.html"],
+  "elementName": "marcel-plugin-speech",
+  "files": ["index.html"],
   "icon": "",
   "props": [
     {
