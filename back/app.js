@@ -20,9 +20,9 @@ models.add({
 })
 
 const detector = new Detector({
-    resource: 'resources/common.res',
-    audioGain: 2.0,
-    models
+  resource: 'resources/common.res',
+  audioGain: 2.0,
+  models
 })
 
 app.use((req, res, next) => {
@@ -36,6 +36,35 @@ app.get('/', (req, res) => {
 });
 
 /**
+ * WebSocket
+ */
+const expressWs = require('express-ws')(app);
+
+app.ws('/', (ws, req) => {
+  ws.on('message', (msg) => {
+    const request = JSON.parse(msg);
+    switch (request.type) {
+      case 'speech':
+        apiai.textRequest(request.message, { sessionId })
+          .then(response => {
+            console.log("Intent " + response.result.metadata.intentName)
+            expressWs.getWss().clients.forEach(client => {
+              client.send(JSON.stringify(
+                {
+                  intentName: response.result.metadata.intentName,
+                  content: response.result.parameters,
+                  fulfillment: response.result.fulfillment
+                }
+              ));
+            })
+          })
+          .catch(err => console.log("error : " + err))
+        break;
+    }
+  })
+})
+
+/**
  * Server itself
  * @type {http.Server}
  */
@@ -45,61 +74,9 @@ const server = app.listen(8080, () => {
   const port = server.address().port;
   console.log("Server running and listening @ " + host + ":" + port);
 });
-const io = require('socket.io')(server);
-
-io.on('connection', socket => {
-  socket.on('speech', (speech) => {
-    apiai.textRequest(speech.message, { sessionId })
-         .then((response) => {
-            console.log(response)
-            if (response.result.metadata.intentName === 'YoutubeSearch') {
-              io.sockets.emit('youtube', {type: "search", content: response.result.parameters.video});
-            }
-
-            if (response.result.metadata.intentName === 'YoutubePause') {
-              io.sockets.emit('youtube', {type: "pause"});
-            }
-
-            if (response.result.metadata.intentName === 'YoutubePlay') {
-              io.sockets.emit('youtube', {type: "play"});
-            }
-
-            if (response.result.metadata.intentName === "Planning") {
-              io.sockets.emit('devfest', {type: "planning"});
-            }
-
-            if (response.result.metadata.intentName === 'CurrentTalk') {
-              io.sockets.emit('devfest', {type: "current", location: response.result.parameters.location});
-            }
-
-            if (response.result.metadata.intentName === 'NextTalk') {
-              io.sockets.emit('devfest', {type: "next", location: response.result.parameters.location});
-            }
-
-            if (response.result.metadata.intentName === 'CloseDisplayed') {
-              io.sockets.emit('close');
-            }
-
-            if (response.result.metadata.intentName === 'Speaker') {
-              io.sockets.emit('devfest', {type: "speaker", name: response.result.parameters.speaker});
-            }
-
-            if (response.result.metadata.intentName === 'Talk') {
-              io.sockets.emit('devfest', {type: "talk", title: response.result.parameters.title});
-            }
-            
-            if (response.result.metadata.intentName === 'Default Fallback Intent') {
-              io.sockets.emit('default', response.result.fulfillment);
-            }
-          })
-          .catch(err => console.log(err));
-  });
-
-})
 
 detector.on('hotword', (index, hotword) => {
-  console.log('hotword detected');
-  io.sockets.emit('hotword');
+  expressWs.getWss().clients.forEach(client => client.send({ type: 'hotword' }))
 })
 
 const mic = record.start(config.microphone);

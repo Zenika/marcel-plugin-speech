@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "apiai-promise": "^1.0.0",
+    "express-ws": "^3.0.0",
     "node-record-lpcm16": "^0.3.0",
-    "snowboy": "^1.2.0",
-    "socket.io": "^2.0.1"
+    "snowboy": "^1.2.0"
   }
 }
